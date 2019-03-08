@@ -2,6 +2,11 @@
 
 namespace BaoPham\DynamoDb\ConditionAnalyzer;
 
+/**
+ * Class Index
+ *
+ * @package BaoPham\DynamoDb\ConditionAnalyzer
+ */
 class Index
 {
     /**

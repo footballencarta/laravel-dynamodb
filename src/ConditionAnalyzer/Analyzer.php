@@ -8,6 +8,7 @@ use BaoPham\DynamoDb\H;
 
 /**
  * Class ConditionAnalyzer
+ *
  * @package BaoPham\DynamoDb\ConditionAnalyzer
  *
  * Usage:
@@ -174,7 +175,7 @@ class Analyzer
 
         foreach ($this->model->getDynamoDbIndexKeys() as $name => $keysInfo) {
             $conditionKeys = array_pluck($this->conditions, 'column');
-            $keys = array_values($keysInfo);
+            $keys          = array_values($keysInfo);
 
             if (count(array_intersect($conditionKeys, $keys)) === count($keys)) {
                 if (!isset($this->indexName) || $this->indexName === $name) {

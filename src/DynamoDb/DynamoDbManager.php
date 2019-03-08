@@ -5,7 +5,7 @@ namespace BaoPham\DynamoDb\DynamoDb;
 use BaoPham\DynamoDb\DynamoDbClientInterface;
 
 /**
- * Class DynamoDb
+ * Class DynamoDbManager
  *
  * @package BaoPham\DynamoDb\DynamoDb
  */
@@ -21,9 +21,14 @@ class DynamoDbManager
      */
     public $marshaler;
 
+    /**
+     * DynamoDbManager constructor.
+     *
+     * @param DynamoDbClientInterface $service
+     */
     public function __construct(DynamoDbClientInterface $service)
     {
-        $this->service = $service;
+        $this->service   = $service;
         $this->marshaler = $service->getMarshaler();
     }
 
@@ -49,6 +54,7 @@ class DynamoDbManager
 
     /**
      * @param string|null $connection
+     *
      * @return \Aws\DynamoDb\DynamoDbClient
      */
     public function client($connection = null)
@@ -66,10 +72,12 @@ class DynamoDbManager
 
     /**
      * @param string $table
+     *
      * @return QueryBuilder
      */
     public function table($table)
     {
-        return $this->newQuery()->setTableName($table);
+        return $this->newQuery()
+            ->setTableName($table);
     }
 }

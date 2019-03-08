@@ -80,15 +80,22 @@ class ExecutableQuery
      */
     public $query;
 
+    /**
+     * ExecutableQuery constructor.
+     *
+     * @param DynamoDbClient $client
+     * @param array          $query
+     */
     public function __construct(DynamoDbClient $client, array $query)
     {
         $this->client = $client;
-        $this->query = $query;
+        $this->query  = $query;
     }
 
     /**
      * @param  string $method
      * @param  array  $parameters
+     *
      * @return mixed
      */
     public function __call($method, $parameters)

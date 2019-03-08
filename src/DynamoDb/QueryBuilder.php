@@ -6,6 +6,7 @@ use Aws\DynamoDb\DynamoDbClient;
 use BadMethodCallException;
 use BaoPham\DynamoDb\DynamoDbClientInterface;
 use BaoPham\DynamoDb\RawDynamoDbQuery;
+use Illuminate\Support\Str;
 
 /**
  * Class QueryBuilder
@@ -51,6 +52,8 @@ use BaoPham\DynamoDb\RawDynamoDbQuery;
  * @method QueryBuilder setKeys(array $keys)
  * @method QueryBuilder setLimit(int $limit)
  * @method QueryBuilder setKey(array $key)
+ *
+ * @method bool hasKeyConditionExpression()
  */
 class QueryBuilder
 {
@@ -94,26 +97,52 @@ class QueryBuilder
 
     /**
      * @param DynamoDbClient|null $client
+     *
      * @return ExecutableQuery
      */
     public function prepare(DynamoDbClient $client = null)
     {
         $raw = new RawDynamoDbQuery(null, $this->query);
+
         return new ExecutableQuery($client ?: $this->service->getClient(), $raw->finalize()->query);
+    }
+
+    /**
+     * Returns the OP based on the conditions set in the query
+     *
+     * @return string
+     */
+    public function getOp()
+    {
+        if ($this->hasKeyConditionExpression()) {
+            return 'Query';
+        }
+
+        return 'Scan';
     }
 
     /**
      * @param  string $method
      * @param  array  $parameters
+     *
      * @return mixed
+     *
+     * @throws BadMethodCallException
      */
     public function __call($method, $parameters)
     {
-        if (starts_with($method, 'set')) {
-            $key = array_reverse(explode('set', $method, 2))[0];
+        if (Str::startsWith($method, 'set')) {
+            $key = $this->getKey($method, 'set');
+
             $this->query[$key] = current($parameters);
 
             return $this;
+        }
+
+        if (Str::startsWith($method, 'has')) {
+            $key = $this->getKey($method, 'has');
+
+            return array_key_exists($key, $this->query);
         }
 
         throw new BadMethodCallException(sprintf(
@@ -121,5 +150,18 @@ class QueryBuilder
             static::class,
             $method
         ));
+    }
+
+    /**
+     * Gets the key by removing the start from the param
+     *
+     * @param string $method
+     * @param string $start
+     *
+     * @return string
+     */
+    protected function getKey($method, $start)
+    {
+        return array_reverse(explode($start, $method, 2))[0];
     }
 }
